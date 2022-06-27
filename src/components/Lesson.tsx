@@ -1,6 +1,8 @@
 import { format, isPast } from "date-fns";
 import ptBR from "date-fns/locale/pt-BR";
 import { CheckCircle, Lock } from "phosphor-react";
+import { Link, useParams } from "react-router-dom";
+import cx from "classnames";
 
 type LessonProps = {
   title: string;
@@ -10,6 +12,8 @@ type LessonProps = {
 };
 
 export function Lesson({ title, slug, availableAt, type }: LessonProps) {
+  const { slug: slugParam } = useParams<{ slug: string }>();
+  const isActiveLesson = slug === slugParam;
   const isLessonAvailable = isPast(availableAt);
   const availableDateFormatted = format(
     availableAt,
@@ -20,13 +24,28 @@ export function Lesson({ title, slug, availableAt, type }: LessonProps) {
   );
 
   return (
-    <a href="#">
+    <Link to={`/event/lesson/${slug}`} className="group">
       <span className="text-gray-300">{availableDateFormatted} </span>
 
-      <div className="rounded border border-gray-500 p-4 mt-2">
+      <div
+        className={cx(
+          `rounded border border-gray-500 p-4 mt-2 group-hover:border-green-500`,
+          {
+            "bg-green-500": isActiveLesson,
+          }
+        )}
+      >
         <header className="flex items-center justify-between">
           {isLessonAvailable ? (
-            <span className="text-sm text-blue-500 font-medium flex items-center gap-2">
+            <span
+              className={cx(
+                "text-sm text-blue-500 font-medium flex items-center gap-2",
+                {
+                  "text-white": isActiveLesson,
+                  "text-blue-500": !isActiveLesson,
+                }
+              )}
+            >
               <CheckCircle size={20} /> Conteúdo liberado
             </span>
           ) : (
@@ -34,13 +53,28 @@ export function Lesson({ title, slug, availableAt, type }: LessonProps) {
               <Lock size={20} /> Em breve
             </span>
           )}
-          <span className="text-xs rounded px-2 py-[0.125rem] text-white border border-green-300 font-bold">
+          <span
+            className={cx(
+              "text-xs rounded px-2 py-[0.125rem] text-white border border-green-300 font-bold",
+              {
+                "border-white": isActiveLesson,
+                "border-green-300": !isActiveLesson,
+              }
+            )}
+          >
             {type === "live" ? "AO VIVO" : "AULA PRÁTICA"}
           </span>
         </header>
 
-        <strong className="text-gray-200 mt-5 block">{title}</strong>
+        <strong
+          className={cx("mt-5 block", {
+            "text-white": isActiveLesson,
+            "text-gray-200": !isActiveLesson,
+          })}
+        >
+          {title}
+        </strong>
       </div>
-    </a>
+    </Link>
   );
 }
